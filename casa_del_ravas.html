@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Casa Navàs - Rompecabezas de Imagen</title>
+<style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
+
+    /* Fondo de la página con efecto gaussiano y oscurecido */
+    body { 
+        position: relative;
+        min-height: 100vh;
+        color: #fff;
+        line-height: 1.6;
+    }
+    body::before {
+        content: "";
+        position: fixed;
+        top:0; left:0;
+        width:100%; height:100%;
+        background-image: url(imagenes_ravas/fondo\,png.jpg);
+        background-size: cover;
+        background-position: center;
+        filter: blur(6px) brightness(0.5); /* efecto gaussiano + oscurecimiento */
+        z-index: -1;
+    }
+
+    /* Header con banner y efecto gaussiano + oscuro */
+    header {
+        position: relative;
+        padding: 20px 0;
+        text-align: center;
+        background-image: url();
+        background-size: cover;
+        background-position: center;
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
+        color: #4a73b8;
+    }
+    header::before {
+        content: "";
+        position: absolute;
+        top:0; left:0;
+        width:100%; height:100%;
+        background-color: rgba(0,0,0,0.4); /* oscurecer banner */
+        z-index: 0;
+    }
+    header h1 {
+        position: relative;
+        z-index: 1;
+        text-shadow: 2px 2px 5px rgba(0,0,0,0.7);
+        font-size: 2rem;
+    }
+    nav {
+        position: relative;
+        z-index: 1;
+    }
+    nav a { 
+        color: rgb(255, 255, 255); 
+        text-decoration: none; 
+        margin: 0 15px; 
+        font-weight: bold; 
+        padding: 8px 15px; 
+        border-radius: 5px; 
+        background-color: rgba(0,0,0,0.3); 
+    }
+    nav a:hover { background-color: rgba(0,0,0,0.6); }
+
+    /* Contenedor principal con efecto gaussiano y transparencia */
+    main {
+        max-width: 1000px;
+        margin: 40px auto;
+        padding: 20px;
+        background-color: rgba(255, 255, 255, 0.3); /* semitransparente */
+        border-radius: 15px;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        text-align: center;
+        color: #000;
+    }
+
+    main h2 { color: #ffffff; margin-bottom: 15px; }
+    main p { margin-bottom: 15px; font-size: 1.1rem; }
+    main img { max-width: 100%; margin: 20px 0; border-radius: 10px; }
+
+    /* Puzzle Layout */
+    #puzzle-wrapper {
+        display: flex;
+        justify-content: space-around;
+        flex-wrap: wrap;
+        margin-top: 30px;
+    }
+    #reference-image, #puzzle-base {
+        width: 300px;
+        height: 300px;
+        border: 2px solid #636e72;
+        border-radius: 10px;
+        position: relative;
+    }
+    #reference-image img, #puzzle-base img {
+        width: 100%;
+        height: 100%;
+        border-radius: 10px;
+    }
+
+    #pieces-container {
+        margin-top: 20px;
+        text-align: center;
+    }
+    .puzzle-piece {
+        width: 150px;
+        height: 300px;
+        margin: 10px;
+        cursor: grab;
+        border-radius: 10px;
+        display: inline-block;
+    }
+
+    #result { margin-top: 20px; font-weight: bold; font-size: 1.2rem; }
+</style>
+</head>
+<body>
+
+<header>
+    <h1>Rompecabezas de Imagen - Casa Navàs</h1>
+</header>
+
+<main>
+    <h2>Arma la imagen correcta</h2>
+    <p>Arrastra la pieza correcta hacia el área de la derecha para completar la imagen. Usa la imagen de la izquierda como referencia.</p>
+
+    <div id="puzzle-wrapper">
+        <!-- Imagen de referencia -->
+        <div id="reference-image">
+            <img src="imagenes_ravas/mitad_prime.PNG" alt="Imagen de referencia">
+        </div>
+
+        <!-- Área para poner piezas -->
+        <div id="puzzle-base" ondragover="allowDrop(event)" ondrop="dropPiece(event)"></div>
+    </div>
+
+    <!-- Piezas disponibles -->
+    <div id="pieces-container">
+        <img src="imagenes_ravas/mitad_prime1.PNG" class="puzzle-piece" draggable="true" ondragstart="dragPiece(event)" alt="Correcta">
+        <img src="imagenes_ravas/mitad_nosirve1.PNG" class="puzzle-piece" draggable="true" ondragstart="dragPiece(event)" alt="Incorrecta">
+        <img src="imagenes_ravas/mitad_nosirve2.PNG" class="puzzle-piece" draggable="true" ondragstart="dragPiece(event)" alt="Incorrecta">
+    </div>
+
+    <div id="result"></div>
+</main>
+
+<script>
+let correctPiece = "mitad_prime1.PNG";
+
+function allowDrop(ev) { ev.preventDefault(); }
+function dragPiece(ev) { ev.dataTransfer.setData("src", ev.target.src); }
+
+function dropPiece(ev) {
+    ev.preventDefault();
+    let data = ev.dataTransfer.getData("src");
+    let base = document.getElementById("puzzle-base");
+    base.innerHTML = "";
+    let img = document.createElement("img");
+    img.src = data;
+    img.style.width = "100%";
+    img.style.height = "100%";
+    img.style.borderRadius = "10px";
+    base.appendChild(img);
+
+    if(data.includes(correctPiece)) {
+        document.getElementById("result").textContent = "¡Correcto! 🎉 La imagen está completa.";
+        document.getElementById("result").style.color = "green";
+    } else {
+        document.getElementById("result").textContent = "Incorrecto. Intenta otra pieza.";
+        document.getElementById("result").style.color = "#d63031";
+    }
+}
+</script>
+
+</body>
+</html>
